@@ -19,54 +19,77 @@ function loadData() {
     renderBalances();
 }
 
-// Save data (disabled: this app now starts fresh each time)
+// app  starts fresh each time
 function saveData() {
     // Intentionally no-op.
 }
 
-// Generate unique ID
+// Generate unique ID for expense records
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
 // Add User
 function addUser() {
+    const idInput = document.getElementById('userId');
     const nameInput = document.getElementById('userName');
+    const id = idInput.value.trim();
     const name = nameInput.value.trim();
-    
+
+    if (!id) {
+        alert('Please enter a user ID');
+        return;
+    }
+
+    if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+        alert('User ID can only contain letters, numbers, underscore (_) and hyphen (-)');
+        return;
+    }
+
     if (!name) {
         alert('Please enter a user name');
         return;
     }
-    
+
+    if (users.some(user => user.id === id)) {
+        alert('User ID already exists. Please enter a unique user ID');
+        return;
+    }
+
     const user = {
-        id: generateId(),
+        id: id,
         name: name
     };
-    
+
     users.push(user);
     saveData();
     renderUsers();
+    idInput.value = '';
     nameInput.value = '';
 }
 
 // Render Users
 function renderUsers() {
     const userList = document.getElementById('userList');
+    const currentUsersHeading = document.getElementById('currentUsersHeading');
     const paidBySelect = document.getElementById('paidBy');
     const participantsList = document.getElementById('participantsList');
+
+    if (currentUsersHeading) {
+        currentUsersHeading.style.display = users.length > 0 ? 'block' : 'none';
+    }
     
     // Display users list (guard DOM elements)
     if (userList) {
         userList.innerHTML = users.map(user => 
-            `<div class="list-item">${user.name}</div>`
+            `<div class="list-item">${user.name} (${user.id})</div>`
         ).join('');
     }
 
     // Update paid by dropdown
     if (paidBySelect) {
         paidBySelect.innerHTML = '<option value="">Select who paid</option>' + 
-            users.map(user => `<option value="${user.id}">${user.name}</option>`).join('');
+            users.map(user => `<option value="${user.id}">${user.name} (${user.id})</option>`).join('');
     }
 
     // Update participants checkboxes
@@ -74,7 +97,7 @@ function renderUsers() {
         participantsList.innerHTML = users.map(user => 
             `<div class="checkbox-item">
                 <input type="checkbox" id="participant_${user.id}" value="${user.id}">
-                <label for="participant_${user.id}">${user.name}</label>
+                <label for="participant_${user.id}">${user.name} (${user.id})</label>
             </div>`
         ).join('');
     }
@@ -162,7 +185,7 @@ function renderExpenses() {
         return `<div class="list-item">
             <strong>${expense.description}</strong><br>
             Amount: ₹${expense.totalAmount}<br>
-            Paid by: ${payer ? payer.name : 'Unknown'}
+            Paid by: ${payer ? `${payer.name} (${payer.id})` : 'Unknown'}
         </div>`;
     }).join('');
 }
@@ -230,8 +253,8 @@ function renderBalances() {
             const creditorUser = users.find(u => u.id === creditor.userId);
             
             settlements.push({
-                from: debtorUser.name,
-                to: creditorUser.name,
+                from: `${debtorUser.name} (${debtorUser.id})`,
+                to: `${creditorUser.name} (${creditorUser.id})`,
                 amount: amount.toFixed(2)
             });
         }
