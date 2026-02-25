@@ -26,7 +26,6 @@ A simple mini web app to split group expenses and calculate who owes whom.
 - `index.html` - UI structure
 - `style.css` - Styling
 - `script.js` - App logic (users, expenses, split calculation)
-- `todo.md` - Project checklist
 
 ## How to Run
 
