@@ -1,8 +1,7 @@
-// Data storage
+
 let users = [];
 let expenses = [];
 
-// Load data on page load
 function loadData() {
     // Keep app state fresh on every new run of Live Server.
     users = [];
